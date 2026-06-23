@@ -19,6 +19,7 @@ USE DATABASE <DATABASE_NAME>;
 
 -- Use a schema
 USE SCHEMA <SCHEMA_NAME>;
+USE SCHEMA <DATABASE_NAME>.<SCHEMA_NAME>;
 
 
 -- ============================================================
@@ -187,6 +188,7 @@ SET
 
 -- Describe stage
 DESC STAGE <DATABASE_NAME>.<SCHEMA_NAME>.<STAGE_NAME>;
+DESCRIBE STAGE <DATABASE_NAME>.<SCHEMA_NAME>.<STAGE_NAME>;
 
 
 -- List files inside stage
