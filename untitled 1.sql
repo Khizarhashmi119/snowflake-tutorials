@@ -27,8 +27,12 @@ CREATE TABLE EXERCISE_DB.PUBLIC.CUSTOMERS (
 );
 -- Copy into table
 COPY INTO EXERCISE_DB.PUBLIC.CUSTOMERS
-FROM
-    's3://snowflake-assignments-mc/gettingstarted/customers.csv' FILE_FORMAT = (TYPE = csv FIELD_DELIMITER = ',' SKIP_HEADER = 1);
+FROM 's3://snowflake-assignments-mc/gettingstarted/customers.csv'
+FILE_FORMAT = (
+    TYPE = csv
+    FIELD_DELIMITER = ','
+    SKIP_HEADER = 1
+);
 -- Count
 SELECT
     COUNT(*)
@@ -61,8 +65,12 @@ USE SCHEMA PUBLIC;
 
 -- Loading the data from S3 bucket
 COPY INTO LOAN_PAYMENT
-FROM
-    's3://bucketsnowflakes3/Loan_payments_data.csv' FILE_FORMAT = (TYPE = csv FIELD_DELIMITER = ',' SKIP_HEADER = 1);
+FROM 's3://bucketsnowflakes3/Loan_payments_data.csv'
+FILE_FORMAT = (
+    TYPE = csv
+    FIELD_DELIMITER = ','
+    SKIP_HEADER = 1
+);
 
 -- Validate
 SELECT
@@ -76,9 +84,11 @@ OR REPLACE DATABASE MANAGE_DB;
 CREATE
 OR REPLACE SCHEMA EXTERNAL_STAGES;
 -- Creating external stage
-CREATE
-OR REPLACE STAGE MANAGE_DB.EXTERNAL_STAGES.AWS_STAGE URL = 's3://bucketsnowflakes3' CREDENTIALS = (
-    AWS_KEY_ID = 'ABCD_DUMMY_ID' AWS_SECRET_KEY = '1234abcd_key'
+CREATE OR REPLACE STAGE MANAGE_DB.EXTERNAL_STAGES.AWS_STAGE 
+URL = 's3://bucketsnowflakes3' 
+CREDENTIALS = (
+    AWS_KEY_ID = 'ABCD_DUMMY_ID' 
+    AWS_SECRET_KEY = '1234abcd_key'
 );
 -- Description of external stage
 DESC STAGE MANAGE_DB.EXTERNAL_STAGES.AWS_STAGE;
@@ -86,19 +96,23 @@ DESC STAGE MANAGE_DB.EXTERNAL_STAGES.AWS_STAGE;
 ALTER STAGE AWS_STAGE
 SET
     CREDENTIALS = (
-        AWS_KEY_ID = 'XYZ_DUMMY_ID' AWS_SECRET_KEY = '987xyz'
+        AWS_KEY_ID = 'XYZ_DUMMY_ID' 
+        AWS_SECRET_KEY = '987xyz'
     );
 -- Publicly accessible staging area
-CREATE
-OR REPLACE STAGE MANAGE_DB.EXTERNAL_STAGES.AWS_STAGE URL = 's3://bucketsnowflakes3';
+CREATE OR REPLACE STAGE MANAGE_DB.EXTERNAL_STAGES.AWS_STAGE 
+URL = 's3://bucketsnowflakes3';
 -- List files in stage
 LIST @AWS_STAGE;
 --Load data using copy command
 COPY INTO OUR_FIRST_DB.PUBLIC.ORDERS
-FROM
-    @AWS_STAGE
-    FILE_FORMAT = (TYPE = CSV FIELD_DELIMITER = ',' SKIP_HEADER = 1)
-    PATTERN = '.*Order.*';
+FROM @AWS_STAGE
+FILE_FORMAT = (
+    TYPE = CSV
+    FIELD_DELIMITER = ','
+    SKIP_HEADER = 1
+)
+PATTERN = '.*Order.*';
 
 CREATE OR REPLACE TABLE OUR_FIRST_DB.PUBLIC.ORDERS (
     ORDER_ID VARCHAR(50),
@@ -115,14 +129,23 @@ FROM
     OUR_FIRST_DB.PUBLIC.ORDERS;
 
 COPY INTO OUR_FIRST_DB.PUBLIC.ORDERS
-FROM
-    @MANAGE_DB.EXTERNAL_STAGES.AWS_STAGE FILE_FORMAT = (TYPE = CSV FIELD_DELIMITER = ',' SKIP_HEADER = 1) FILES = ('OrderDetails.csv');
+FROM @MANAGE_DB.EXTERNAL_STAGES.AWS_STAGE
+FILE_FORMAT = (
+    TYPE = CSV
+    FIELD_DELIMITER = ','
+    SKIP_HEADER = 1
+)
+FILES = ('OrderDetails.csv');
 
-CREATE
-OR REPLACE STAGE CUSTOMER_STAGE URL = 's3://snowflake-assignments-mc/loadingdata/';
+CREATE OR REPLACE STAGE CUSTOMER_STAGE 
+URL = 's3://snowflake-assignments-mc/loadingdata/';
 
 LIST @CUSTOMER_STAGE;
 
 COPY INTO EXERCISE_DB.PUBLIC.CUSTOMERS
-FROM
-    @CUSTOMER_STAGE FILE_FORMAT = (TYPE = CSV FIELD_DELIMITER = ';' SKIP_HEADER = 1);
+FROM @CUSTOMER_STAGE
+FILE_FORMAT = (
+    TYPE = CSV
+    FIELD_DELIMITER = ';'
+    SKIP_HEADER = 1
+);
