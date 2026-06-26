@@ -1,102 +1,89 @@
 -- Create file format and stage object
-CREATE
-OR REPLACE FILE FORMAT MANAGE_DB.FILE_FORMATS.PARQUET_FORMAT TYPE = 'parquet';
+CREATE OR REPLACE FILE FORMAT MANAGE_DB.FILE_FORMATS.PARQUET_FORMAT
+TYPE = PARQUET;
 
-CREATE
-OR REPLACE STAGE MANAGE_DB.EXTERNAL_STAGES.PARQUET_STAGE url = 's3://snowflakeparquetdemo' FILE_FORMAT = MANAGE_DB.FILE_FORMATS.PARQUET_FORMAT;
+CREATE OR REPLACE STAGE MANAGE_DB.EXTERNAL_STAGES.PARQUET_STAGE
+URL = 's3://snowflakeparquetdemo'
+FILE_FORMAT = MANAGE_DB.FILE_FORMATS.PARQUET_FORMAT;
 
 -- Preview the data
 LIST @MANAGE_DB.EXTERNAL_STAGES.PARQUET_STAGE;
 
 DESC STAGE MANAGE_DB.EXTERNAL_STAGES.PARQUET_STAGE;
 
-SELECT
-    *
-FROM
-    @MANAGE_DB.EXTERNAL_STAGES.PARQUET_STAGE
+SELECT *
+FROM @MANAGE_DB.EXTERNAL_STAGES.PARQUET_STAGE
 LIMIT 5;
 
 -- File format in Queries
-CREATE
-OR REPLACE STAGE MANAGE_DB.EXTERNAL_STAGES.PARQUET_STAGE url = 's3://snowflakeparquetdemo';
+CREATE OR REPLACE STAGE MANAGE_DB.EXTERNAL_STAGES.PARQUET_STAGE
+URL = 's3://snowflakeparquetdemo';
 
-SELECT
-    *
-FROM
-    @MANAGE_DB.EXTERNAL_STAGES.PARQUET_STAGE (
-        file_format => 'MANAGE_DB.FILE_FORMATS.PARQUET_FORMAT'
-    )
+SELECT *
+FROM @MANAGE_DB.EXTERNAL_STAGES.PARQUET_STAGE (
+    FILE_FORMAT => 'MANAGE_DB.FILE_FORMATS.PARQUET_FORMAT'
+)
 LIMIT 5;
 
 -- Quotes can be omitted in case of the current namespace
 USE MANAGE_DB.FILE_FORMATS;
 
-SELECT
-    *
-FROM
-    @MANAGE_DB.EXTERNAL_STAGES.PARQUET_STAGE (
-        file_format => MANAGE_DB.FILE_FORMATS.PARQUET_FORMAT
-    )
+SELECT *
+FROM @MANAGE_DB.EXTERNAL_STAGES.PARQUET_STAGE (
+    FILE_FORMAT => MANAGE_DB.FILE_FORMATS.PARQUET_FORMAT
+)
 LIMIT 5;
 
-CREATE
-OR REPLACE STAGE MANAGE_DB.EXTERNAL_STAGES.PARQUET_STAGE url = 's3://snowflakeparquetdemo' FILE_FORMAT = MANAGE_DB.FILE_FORMATS.PARQUET_FORMAT;
+CREATE OR REPLACE STAGE MANAGE_DB.EXTERNAL_STAGES.PARQUET_STAGE
+URL = 's3://snowflakeparquetdemo'
+FILE_FORMAT = MANAGE_DB.FILE_FORMATS.PARQUET_FORMAT;
 
 -- Syntax for Querying unstructured data
 SELECT
     $1:__index_level_0__,
     $1:cat_id,
     $1:date,
-    $1:"__index_level_0__",
-    $1:"cat_id",
-    $1:"d",
-    $1:"date",
     $1:"dept_id",
     $1:"id",
     $1:"item_id",
     $1:"state_id",
     $1:"store_id",
     $1:"value"
-FROM
-    @MANAGE_DB.EXTERNAL_STAGES.PARQUET_STAGE
+FROM @MANAGE_DB.EXTERNAL_STAGES.PARQUET_STAGE
 LIMIT 5;
 
 -- Date conversion
-SELECT
-    DATE(1);
+SELECT DATE(1);
 
-SELECT
-    DATE(365 * 60 * 60 * 24);
+SELECT DATE(365 * 60 * 60 * 24);
 
 -- Querying with conversions and aliases
 SELECT
-    $1:__index_level_0__::int as index_level,
-    $1:cat_id::VARCHAR(50) as category,
-    DATE($1:date::int) as Date,
-    $1:"dept_id"::VARCHAR(50) as Dept_ID,
-    $1:"id"::VARCHAR(50) as ID,
-    $1:"item_id"::VARCHAR(50) as Item_ID,
-    $1:"state_id"::VARCHAR(50) as State_ID,
-    $1:"store_id"::VARCHAR(50) as Store_ID,
-    $1:"value"::int as value,
-    METADATA$FILENAME as file_name,
-    METADATA$file_last_modified as last_modified
-FROM
-    @MANAGE_DB.EXTERNAL_STAGES.PARQUET_STAGE
+    $1:__index_level_0__::INT        AS index_level,
+    $1:cat_id::VARCHAR(50)           AS category,
+    DATE($1:date::INT)               AS date,
+    $1:"dept_id"::VARCHAR(50)       AS dept_id,
+    $1:"id"::VARCHAR(50)            AS id,
+    $1:"item_id"::VARCHAR(50)       AS item_id,
+    $1:"state_id"::VARCHAR(50)      AS state_id,
+    $1:"store_id"::VARCHAR(50)      AS store_id,
+    $1:"value"::INT                 AS value,
+    METADATA$FILENAME                AS file_name,
+    METADATA$FILE_LAST_MODIFIED      AS last_modified
+FROM @MANAGE_DB.EXTERNAL_STAGES.PARQUET_STAGE
 LIMIT 5;
 
 SELECT
-    CURRENT_DATE() as loaded_at,
-    CURRENT_TIMESTAMP() as loaded_at_timestamp,
-    TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP()) as loaded_at_timestamp_ntz,
-    CURRENT_TIME() as loaded_at_time,
-    CURRENT_USER() as loaded_by;
+    CURRENT_DATE()                              AS loaded_at,
+    CURRENT_TIMESTAMP()                         AS loaded_at_timestamp,
+    TO_TIMESTAMP_NTZ(CURRENT_TIMESTAMP())       AS loaded_at_timestamp_ntz,
+    CURRENT_TIME()                              AS loaded_at_time,
+    CURRENT_USER()                              AS loaded_by;
 
 SELECT
     $1,
-    $2,
-FROM
-    @MANAGE_DB.EXTERNAL_STAGES.PARQUET_STAGE
+    $2
+FROM @MANAGE_DB.EXTERNAL_STAGES.PARQUET_STAGE
 LIMIT 5;
 
 CREATE SCHEMA IF NOT EXISTS MANAGE_DB.STORAGE_INTEGRATIONS;
@@ -127,7 +114,7 @@ CREATE OR REPLACE TABLE OUR_FIRST_DB.PUBLIC.MOVIE_TITLES (
 );
 
 CREATE OR REPLACE FILE FORMAT MANAGE_DB.FILE_FORMATS.MOVIES_CSV_FORMAT
-TYPE = 'CSV'
+TYPE = CSV
 FIELD_DELIMITER = ','
 SKIP_HEADER = 1
 NULL_IF = ('NULL', 'null')
@@ -144,9 +131,9 @@ FILE_FORMAT = MANAGE_DB.FILE_FORMATS.MOVIES_CSV_FORMAT;
 LIST @MANAGE_DB.EXTERNAL_STAGES.MOVIES_STAGE;
 
 SELECT
-	$7 as release_date,
-	DATE_FROM_PARTS(
-		RIGHT($7, 4),
+    $7 AS release_date,
+    DATE_FROM_PARTS(
+        RIGHT($7, 4),
 		CASE SPLIT_PART($7, ' ', 1)
 			WHEN 'January' THEN 1
 			WHEN 'February' THEN 2
@@ -162,17 +149,17 @@ SELECT
 			WHEN 'December' THEN 12
 		END,
 		SPLIT_PART(SPLIT_PART($7, ',', 1), ' ', 2)
-	) as release_date
-FROM
-	@MANAGE_DB.EXTERNAL_STAGES.MOVIES_STAGE
-LIMIT
-	5;
+    ) AS release_date
+FROM @MANAGE_DB.EXTERNAL_STAGES.MOVIES_STAGE
+LIMIT 5;
 
 COPY INTO OUR_FIRST_DB.PUBLIC.MOVIE_TITLES
 FROM @MANAGE_DB.EXTERNAL_STAGES.MOVIES_STAGE;
 -- VALIDATION_MODE = RETURN_10_ROWS;
 
-SELECT * FROM OUR_FIRST_DB.PUBLIC.MOVIE_TITLES LIMIT 10;
+SELECT *
+FROM OUR_FIRST_DB.PUBLIC.MOVIE_TITLES
+LIMIT 10;
 
 CREATE OR REPLACE STAGE MANAGE_DB.EXTERNAL_STAGES.MUSICAL_INSTRUMENTS_STAGE
 URL = 's3://amzn-s3-snowflake-tutorial/json/'
@@ -184,21 +171,19 @@ LIST @MANAGE_DB.EXTERNAL_STAGES.MUSICAL_INSTRUMENTS_STAGE;
 DESC STAGE MANAGE_DB.EXTERNAL_STAGES.MUSICAL_INSTRUMENTS_STAGE;
 
 SELECT
-	DATE($1:unixReviewTime::INT) as review_time,
+    DATE($1:unixReviewTime::INT) AS review_time,
 	DATE_FROM_PARTS(
 		RIGHT($1:reviewTime::STRING, 4),
 		LEFT($1:reviewTime::STRING, 2),
 		SPLIT_PART(SPLIT_PART($1:reviewTime::STRING, ' ', 2), ',', 1)
-	) as review_time,
+    ) AS review_time,
 	DATE_FROM_PARTS(
 		RIGHT($1:reviewTime::STRING, 4),
 		LEFT($1:reviewTime::STRING, 2),
 		SPLIT(SPLIT($1:reviewTime::STRING, ' ') [1], ',') [0]
-	) as review_time,
-FROM
-	@MANAGE_DB.EXTERNAL_STAGES.MUSICAL_INSTRUMENTS_STAGE
-LIMIT
-	5;
+    ) AS review_time
+FROM @MANAGE_DB.EXTERNAL_STAGES.MUSICAL_INSTRUMENTS_STAGE
+LIMIT 5;
 
 CREATE OR REPLACE TABLE OUR_FIRST_DB.PUBLIC.EMPLOYEES (
     ID INT,
@@ -225,7 +210,8 @@ FILE_FORMAT = MANAGE_DB.FILE_FORMATS.EMPLOYEES_CSV_FORMAT;
 
 LIST @MANAGE_DB.EXTERNAL_STAGES.EMPLOYEES_STAGE;
 
-SELECT * FROM OUR_FIRST_DB.PUBLIC.EMPLOYEES;
+SELECT *
+FROM OUR_FIRST_DB.PUBLIC.EMPLOYEES;
 
 CREATE OR REPLACE SCHEMA OUR_FIRST_DB.PIPES;
 
@@ -287,75 +273,65 @@ DESCRIBE PIPE OUR_FIRST_DB.PIPES.EMPLOYEES_PIPE;
 ALTER PIPE OUR_FIRST_DB.PIPES.EMPLOYEES_PIPE SET PIPE_EXECUTION_PAUSED = TRUE;
 
 -- Use of cortex PARSE_DOCUMENT and CLASSIFY_TEXT function
-WITH CONTENT AS (
+WITH content AS (
     SELECT
-        SPLIT_PART(RELATIVE_PATH, '/', -1) as FILE_NAME,
+        SPLIT_PART(RELATIVE_PATH, '/', -1) AS file_name,
         SNOWFLAKE.CORTEX.PARSE_DOCUMENT (
             @COMMON_DB.RESOURCES.COURSE_FILES,
             RELATIVE_PATH,
             { 'mode': 'OCR' }
-        ):content::STRING as CONTENT,
+        ):content::STRING AS content
     FROM
         DIRECTORY(@COMMON_DB.RESOURCES.COURSE_FILES)
     WHERE
         CONTAINS(RELATIVE_PATH, 'garden_kb/')
 )
 SELECT
-    FILE_NAME,
-    CONTENT,
+    file_name,
+    content,
     SNOWFLAKE.CORTEX.CLASSIFY_TEXT(
-        CONTENT,
+        content,
         (
             SELECT
                 ARRAY_AGG(DISTINCT PLANT_NAME)
             FROM
                 VEGETABLE_DETAILS
         )
-    ) as CLASSIFIED
-FROM
-    CONTENT;
+    ) AS classified
+FROM content;
 
 SELECT
-    SPLIT_PART(RELATIVE_PATH, '/', -1) as FILE_NAME,
+    SPLIT_PART(RELATIVE_PATH, '/', -1) AS file_name,
     SNOWFLAKE.CORTEX.PARSE_DOCUMENT (
         @COMMON_DB.RESOURCES.COURSE_FILES,
         RELATIVE_PATH,
         { 'mode': 'OCR' }
-    ):content::STRING as CONTENT,
+    ):content::STRING AS content,
     SNOWFLAKE.CORTEX.CLASSIFY_TEXT(
-        CONTENT,
+        content,
         (
             SELECT
                 ARRAY_AGG(DISTINCT PLANT_NAME)
             FROM
                 VEGETABLE_DETAILS
         )
-    ):label::STRING as CLASSIFIED
-FROM
-    DIRECTORY(@COMMON_DB.RESOURCES.COURSE_FILES)
-WHERE
-    CONTAINS(RELATIVE_PATH, 'garden_kb/');
+    ):label::STRING AS classified
+FROM DIRECTORY(@COMMON_DB.RESOURCES.COURSE_FILES)
+WHERE CONTAINS(RELATIVE_PATH, 'garden_kb/');
 
 -- Time travel
-SELECT
-	*
-FROM
-	OUR_FIRST_DB.PUBLIC.EMPLOYEES AT (TIMESTAMP => '2025-10-14 10:00:00'::timestamp_tz);
+SELECT *
+FROM OUR_FIRST_DB.PUBLIC.EMPLOYEES
+AT (TIMESTAMP => '2025-10-14 10:00:00'::TIMESTAMP_TZ);
 
-SELECT
-	*
-FROM
-	OUR_FIRST_DB.PUBLIC.EMPLOYEES AT (
-		OFFSET => -60 * 2
-	);
+SELECT *
+FROM OUR_FIRST_DB.PUBLIC.EMPLOYEES
+AT (OFFSET => -120);
 
 -- 2 minutes ago
-SELECT
-	*
-FROM
-	OUR_FIRST_DB.PUBLIC.EMPLOYEES BEFORE (
-		STATEMENT => '019856d5-0000-0000-0000-000000000000'	-- Before specific statement
-	);
+SELECT *
+FROM OUR_FIRST_DB.PUBLIC.EMPLOYEES
+BEFORE (STATEMENT => '019856d5-0000-0000-0000-000000000000');
 
 -- Assignment
 CREATE OR REPLACE TABLE LEARNING_DB.PUBLIC.PART
